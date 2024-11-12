@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Glyph Swap - Decentralized Token Exchange">
+  <title>Glyph Swap</title>
+  <link rel="icon" href="https://static.wixstatic.com/media/c0fd9f_cfacf9e215804e3a8ad37a1f5e0d3f11~mv2.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow-y: auto;
+      font-family: 'Red Hat Display', Arial, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=2000&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111827;
+    }
+
+    /* Container styles */
+    .container {
+      max-width: 480px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin: 20px;
+    }
+
+    /* Header styles */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header h1 img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .beta-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #1E40AF;
+      background-color: #DBEAFE;
+      padding: 4px 8px;
+      border-radius: 9999px;
+    }
+
+    /* Form elements */
+    .token-select {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .token-select label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4B5563;
+      margin-bottom: 8px;
+    }
+
+    .select-button {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .select-button:hover {
+      background: #fff;
+      border-color: #FFAD33;
+    }
+
+    .token-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .token-info img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown.active {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: #F3F4F6;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #FFAD33;
+      box-shadow: 0 0 0 2px rgba(255, 173, 51, 0.2);
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 12px;
+      background: #FFAD33;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .submit-button:hover {
+      background: #E69500;
+    }
+
+    .submit-button:disabled {
+      background: #D1D5DB;
+      cursor: not-allowed;
+    }
+
+    /* Info displays */
+    .min-amount,
+    .liquidity-info {
+      font-size: 12px;
+      color: #6B7280;
+      margin-top: 4px;
+    }
+
+    .estimated-amount {
+      background: #F3F4F6;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 14px;
+      text-align: center;
+      color: #4B5563;
+    }
+
+    .wallet-address {
+      background: #F3F4F6;
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 12px 0;
+      word-break: break-all;
+    }
+
+    .copy-button {
+      background: none;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .copy-button:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .success-message {
+      color: #059669;
+      font-size: 14px;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .error-message {
+      color: #DC2626;
+      font-size: 14px;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    /* Result view */
+    #swapResult {
+      text-align: center;
+    }
+
+    #swapResult h2 {
+      margin-bottom: 16px;
+      color: #111827;
+    }
+
+    .back-button {
+      width: 100%;
+      padding: 12px;
+      background: #F3F4F6;
+      color: #4B5563;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 16px;
+    }
+
+    .back-button:hover {
+      background: #E5E7EB;
+    }
+
+    .discord-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #FFAD33;
+      text-decoration: none;
+      margin-top: 16px;
+      font-weight: 500;
+    }
+
+    .discord-link:hover {
+      color: #E69500;
+    }
+
+    /* Loading indicator */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 2px solid #FFAD33;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .container {
+        margin: 10px;
+        padding: 16px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .header h1 img {
+        width: 24px;
+        height: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>
+        <img src="https://static.wixstatic.com/media/c0fd9f_cfacf9e215804e3a8ad37a1f5e0d3f11~mv2.png" alt="Glyph Swap Logo">
+        <span>Glyph</span> <span>Swap</span>
+      </h1>
+      <div class="beta-label">Beta</div>
+    </div>
+
+    <form id="swapForm">
+      <div class="token-select">
+        <label>From</label>
+        <button type="button" class="select-button" id="fromToken">
+          <div class="token-info">
+            <img src="https://static.wixstatic.com/media/c0fd9f_33dd965b95d54dfe9af12ed99fe5c43a~mv2.png" alt="RXD">
+            <span>RXD</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="dropdown" id="fromTokenDropdown"></div>
+      </div>
+
+      <div class="input-group">
+        <input type="number" id="amount" placeholder="0.0" min="0" step="any" required>
+        <div id="minAmount" class="min-amount"></div>
+      </div>
+
+      <div class="token-select">
+        <label>To</label>
+        <button type="button" class="select-button" id="toToken">
+          <div class="token-info">
+            <img src="https://static.wixstatic.com/media/c0fd9f_c2c4b7bf64464273a2cf3e30d08a9692~mv2.png" alt="RADCAT">
+            <span>RADCAT</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="dropdown" id="toTokenDropdown"></div>
+      </div>
+
+      <div class="input-group">
+        <label>Your Photonic Wallet Address</label>
+        <input type="text" id="walletAddress" placeholder="Enter your wallet address" required pattern="^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$">
+      </div>
+
+      <button type="submit" class="submit-button" id="swapButton">Swap Tokens</button>
+    </form>
+
+    <div id="swapResult" style="display: none;"></div>
+  </div>
+
+  <script>
+    // Configuration
+    const SWAP_WALLET = '1CiKtAE6Zf3tniKmPBhv1e7pBRezZM433N';
+    const FEE_PERCENTAGE = 3;
+    const DISCORD_URL = 'https://discord.gg/pwBMDDzWWG';
+
+    // Token definitions with built-in liquidity pool data
+    const TOKENS = {
+      RXD: { symbol: 'RXD', name: 'Radiant', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_33dd965b95d54dfe9af12ed99fe5c43a~mv2.png', totalSupply: 120000000, liquidity: 1000000 },
+      RADCAT: { symbol: 'RADCAT', name: 'RadCat', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_c2c4b7bf64464273a2cf3e30d08a9692~mv2.png', totalSupply: 21000000, liquidity: 1000000 },
+      FUGAZI: { symbol: 'FUGAZI', name: 'Fugazi', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_27b255b33ae74f2c9b7bb9a6c3cf9076~mv2.jpeg', totalSupply: 21000000, liquidity: 200714 },
+      RAD: { symbol: 'RAD', name: 'RAD', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_95f570fecb4b4ea08534747a1a751883~mv2.jpeg', totalSupply: 21000000000, liquidity: 137900000 },
+      PEPE: { symbol: 'PEPE', name: 'Pepe', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_13942eda9a82482b8ae59796e34220df~mv2.webp', totalSupply: 2530000000000, liquidity: 45223222176 },
+      DOGE: { symbol: 'DOGE', name: 'Doge', imageUrl: 'https://static.wixstatic.com/media/c0fd9f_b30b39721c80429ebba9a87f706cf9a7~mv2.webp', totalSupply: 90000000000, liquidity: 18405962491 }
+    };
+
+    // State management
+    let currentFromToken = TOKENS.RXD;
+    let currentToToken = TOKENS.RADCAT;
+
+    // Utility functions
+    function calculateSwapAmount(fromToken, toToken, amount) {
+      const ratio = toToken.totalSupply / fromToken.totalSupply;
+      const baseAmount = amount * ratio;
+      const feeAmount = baseAmount * (FEE_PERCENTAGE / 100);
+      return baseAmount - feeAmount;
+    }
+
+    function calculateMinimumInputAmount(fromToken, toToken) {
+      const ratio = toToken.totalSupply / fromToken.totalSupply;
+      return ratio * (100 / (100 - FEE_PERCENTAGE));
+    }
+
+    function validateSwapAmount(amount) {
+      const estimatedAmount = calculateSwapAmount(currentFromToken, currentToToken, amount);
+      return estimatedAmount <= currentToToken.liquidity * 0.5 && estimatedAmount >= 1;
+    }
+
+    // UI update functions
+    function updateMinimumAmount() {
+      const minAmount = calculateMinimumInputAmount(currentFromToken, currentToToken);
+      document.getElementById('minAmount').textContent =
+        `Minimum input: ${minAmount.toFixed(6)} ${currentFromToken.symbol} (including ${FEE_PERCENTAGE}% fee)`;
+    }
+
+    function updateEstimatedAmount() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      if (!isNaN(amount)) {
+        const estimatedAmount = calculateSwapAmount(currentFromToken, currentToToken, amount);
+        const existingEstimate = document.querySelector('.estimated-amount');
+        const content = `Estimated amount: ${estimatedAmount.toFixed(6)} ${currentToToken.symbol}`;
+        
+        if (existingEstimate) {
+          existingEstimate.textContent = content;
+        } else {
+          const estimate = document.createElement('div');
+          estimate.className = 'estimated-amount';
+          estimate.textContent = content;
+          document.getElementById('amount').parentNode.appendChild(estimate);
+        }
+      }
+    }
+
+    function updateLiquidityInfo() {
+      const existingInfo = document.querySelector('.liquidity-info');
+      const newContent = `Available liquidity: ${currentToToken.liquidity.toLocaleString()} ${currentToToken.symbol}`;
+
+      if (existingInfo) {
+        if (existingInfo.textContent !== newContent) {
+          existingInfo.textContent = newContent;
+          existingInfo.classList.add('updated');
+          setTimeout(() => existingInfo.classList.remove('updated'), 2000);
+        }
+      } else {
+        const info = document.createElement('div');
+        info.className = 'liquidity-info';
+        info.textContent = newContent;
+        document.getElementById('toToken').parentNode.appendChild(info);
+      }
+    }
+
+    // Token selection setup
+    function setupTokenSelect(buttonId, dropdownId, isToDropdown) {
+      const button = document.getElementById(buttonId);
+      const dropdown = document.getElementById(dropdownId);
+      
+      button.addEventListener('click', () => {
+        dropdown.classList.toggle('active');
+      });
+
+      const tokens = Object.values(TOKENS).filter(token => 
+        !isToDropdown || token.liquidity >= 2
+      );
+
+      tokens.forEach(token => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.innerHTML = `
+          <img src="${token.imageUrl}" alt="${token.symbol}">
+          <span>${token.symbol}</span>
+        `;
+        
+        item.addEventListener('click', () => {
+          if (isToDropdown) {
+            currentToToken = token;
+          } else {
+            currentFromToken = token;
+          }
+          
+          button.querySelector('.token-info').innerHTML = `
+            <img src="${token.imageUrl}" alt="${token.symbol}">
+            <span>${token.symbol}</span>
+          `;
+          
+          dropdown.classList.remove('active');
+          updateMinimumAmount();
+          updateLiquidityInfo();
+          updateEstimatedAmount();
+        });
+        
+        dropdown.appendChild(item);
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (event) => {
+        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+          dropdown.classList.remove('active');
+        }
+      });
+    }
+
+    // Event handlers
+    function handleCopy() {
+      const walletAddress = document.getElementById('swapWalletAddress');
+      navigator.clipboard.writeText(walletAddress.textContent).then(() => {
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.textContent = 'Copied to clipboard!';
+        walletAddress.parentNode.appendChild(successMessage);
+        setTimeout(() => successMessage.remove(), 2000);
+      });
+    }
+
+    function showSwapResult(amount, estimatedAmount) {
+      const swapForm = document.getElementById('swapForm');
+      const swapResult = document.getElementById('swapResult');
+
+      swapForm.style.display = 'none';
+      swapResult.style.display = 'block';
+      swapResult.innerHTML = `
+        <h2>Swap Initiated</h2>
+        <p>You are swapping ${amount} ${currentFromToken.symbol} for approximately ${estimatedAmount.toFixed(6)} ${currentToToken.symbol}.</p>
+        <p>Please send ${amount} ${currentFromToken.symbol} to the following address:</p>
+        <div class="wallet-address">
+          <span id="swapWalletAddress">${SWAP_WALLET}</span>
+          <button class="copy-button" onclick="handleCopy()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+        <p>After sending, please enter your transaction ID to verify the swap:</p>
+        <input type="text" id="transactionId" placeholder="Enter transaction ID">
+        <button onclick="verifyTransaction()" class="submit-button">Verify Transaction</button>
+        <button onclick="backToSwap()" class="back-button">Back to Swap</button>
+        <a href="${DISCORD_URL}" target="_blank" rel="noopener noreferrer" class="discord-link">
+          Need help? Join our Discord
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3"></path>
+          </svg>
+        </a>
+      `;
+    }
+
+    function showCompletionMessage() {
+      const swapResult = document.getElementById('swapResult');
+      swapResult.innerHTML = `
+        <h2>Swap Completed</h2>
+        <p>Your swap has been verified and completed. Thank you for using Glyph Swap!</p>
+        <button onclick="backToSwap()" class="submit-button">Start New Swap</button>
+      `;
+    }
+
+    function backToSwap() {
+      document.getElementById('swapForm').style.display = 'block';
+      document.getElementById('swapResult').style.display = 'none';
+      document.getElementById('swapForm').reset();
+      const existingEstimate = document.querySelector('.estimated-amount');
+      if (existingEstimate) {
+        existingEstimate.remove();
+      }
+      updateMinimumAmount();
+      updateLiquidityInfo();
+    }
+
+    async function verifyTransaction() {
+      const transactionId = document.getElementById('transactionId').value;
+      if (!transactionId) {
+        alert('Please enter your transaction ID');
+        return;
+      }
+      
+      // In this standalone version, we'll simulate verification
+      setTimeout(() => {
+        showCompletionMessage();
+        // Update local liquidity
+        currentFromToken.liquidity += parseFloat(document.getElementById('amount').value);
+        currentToToken.liquidity -= parseFloat(document.getElementById('amount').value);
+      }, 1500);
+    }
+
+    // Form submission
+    document.getElementById('swapForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const amount = parseFloat(document.getElementById('amount').value);
+      const walletAddress = document.getElementById('walletAddress').value;
+
+      if (!validateSwapAmount(amount)) {
+        alert(`Swap amount exceeds 50% of available liquidity (${(currentToToken.liquidity * 0.5).toFixed(6)} ${currentToToken.symbol}) or minimum output amount must be at least 1 ${currentToToken.symbol}`);
+        return;
+      }
+
+      const estimatedAmount = calculateSwapAmount(currentFromToken, currentToToken, amount);
+      showSwapResult(amount, estimatedAmount);
+    });
+
+    // Amount input handler
+    document.getElementById('amount').addEventListener('input', updateEstimatedAmount);
+
+    // Initialize the interface
+    setupTokenSelect('fromToken', 'fromTokenDropdown', false);
+    setupTokenSelect('toToken', 'toTokenDropdown', true);
+    updateMinimumAmount();
+    updateLiquidityInfo();
+  </script>
+</body>
+</html>
